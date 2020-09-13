@@ -10,9 +10,13 @@ import XCTest
 @testable import Aminals
 
 class AminalsTests: XCTestCase {
+  var sut: AnimalResponseData!
 
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+      super.setUp()
+      let data = try getDataFromJSON("TestJson")
+      let decoder = JSONDecoder()
+      sut = try decoder.decode(AnimalResponseData.self, from: data)
     }
 
     override func tearDownWithError() throws {
@@ -20,15 +24,28 @@ class AminalsTests: XCTestCase {
     }
 
     func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+      print( sut.data.first!)
+      print()
     }
 
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
+}
 
+extension XCTestCase {
+  enum TestError: Error {
+    case fileNotFound
+  }
+
+  func getDataFromJSON(_ fileName: String) throws -> Data {
+    let bundle = Bundle(for: type(of: self))
+    guard let url = bundle.url(forResource: fileName, withExtension: "json") else {
+      XCTFail("Missing File: \(fileName).json")
+      throw TestError.fileNotFound
+    }
+    do {
+      let data = try Data(contentsOf: url)
+      return data
+    } catch {
+      throw error
+    }
+  }
 }

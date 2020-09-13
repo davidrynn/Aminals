@@ -11,14 +11,16 @@ import Combine
 
 class Animal: ObservableObject, Identifiable {
   let id: String
-  let image: UIImage
-  let smallImage: UIImage
-  let text: String
+  let imageURL: String
+  var smallImageURL: String
+  var smallImage: UIImage?
+  let title: String
 
-  init(id: String, image: UIImage, smallImage: UIImage, text: String) {
-    self.image = image
+  init(id: String, imageURL: String, smallImageURL: String, smallImage: UIImage? = nil, title: String) {
+    self.imageURL = imageURL
+    self.smallImageURL = smallImageURL
     self.smallImage = smallImage
-    self.text = text
+    self.title = title
     self.id = id
   }
 }
