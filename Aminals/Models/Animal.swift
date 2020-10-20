@@ -13,13 +13,11 @@ class Animal: ObservableObject, Identifiable {
   let id: String
   let imageURL: String
   var smallImageURL: String
-  var smallImage: UIImage?
   let title: String
 
-  init(id: String, imageURL: String, smallImageURL: String, smallImage: UIImage? = nil, title: String) {
+  init(id: String, imageURL: String, smallImageURL: String, title: String) {
     self.imageURL = imageURL
     self.smallImageURL = smallImageURL
-    self.smallImage = smallImage
     self.title = title
     self.id = id
   }
