@@ -10,13 +10,21 @@ import SwiftUI
 import Combine
 
 struct ListRow: View {
+    @State var thumbnail = UIImage(systemName: "photo")!
     let animal: Animal
     var body: some View {
         HStack {
-            URLImage(url: animal.smallImageURL)
-                .font(.headline)
+            Image(uiImage: thumbnail).resizable().frame(width: 32.0, height: 32.0)
             Spacer()
             Text(animal.title)
+        }.onAppear {
+            DispatchQueue.global(qos: .background).async {
+                if let dataUrl = URL(string: animal.smallImageURL), let imageData = try? Data(contentsOf: dataUrl), let image = UIImage(data: imageData) {
+                    DispatchQueue.main.async {
+                        thumbnail = image
+                    }
+                }
+            }
         }
     }
 }
@@ -26,62 +34,4 @@ struct ListRow_Previews: PreviewProvider {
         let animal = Animal(id: "123", imageURL: "nil", smallImageURL: "nil", title: "No Image")
         ListRow(animal: animal)
     }
-}
-
-struct URLImage: View {
-
-    @ObservedObject private var imageLoader = ImageLoader()
-
-    var placeholder: Image
-
-    init(url: String, placeholder: Image = Image(systemName: "photo")) {
-        self.placeholder = placeholder
-        self.imageLoader.load(url: url)
-    }
-
-    var body: some View {
-        if let uiImage = self.imageLoader.downloadedImage {
-            return Image(uiImage: uiImage)
-        } else {
-            return placeholder
-        }
-    }
-
-}
-
-
-class ImageLoader: ObservableObject {
-
-    var downloadedImage: UIImage?
-    var didChange = PassthroughSubject<ImageLoader?, Never>() {
-        didSet {
-            print("updated image")
-        }
-    }
-
-    func load(url: String) {
-
-        guard let imageURL = URL(string: url) else {
-            fatalError("ImageURL is not correct!")
-        }
-
-        URLSession.shared.dataTask(with: imageURL) { data, response, error in
-
-            guard let data = data, error == nil else {
-                DispatchQueue.main.async {
-                    self.didChange.send(nil)
-                }
-                return
-            }
-
-            self.downloadedImage = UIImage.gifImageWithData(data)
-            DispatchQueue.main.async {
-                self.didChange.send(self)
-            }
-
-        }.resume()
-
-    }
-
-
 }

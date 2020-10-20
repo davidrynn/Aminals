@@ -17,12 +17,7 @@ struct ContentView: View {
     NavigationView {
       List(animals) { animal in
         NavigationLink(destination: AnimalDetailView(imageURL: URL(string: animal.imageURL)!, title: animal.title)) {
-        HStack {
-          Image(uiImage: self.defaultImage)
-            .font(.headline)
-          Spacer()
-          Text(animal.title)
-        }
+            ListRow(animal: animal)
       }
       }
     }
@@ -36,19 +31,9 @@ struct ContentView: View {
       self.fetch(url, defaultValue: defaultData)
         .map { $0.data }
         .map {  $0.flatMap { animalData in
-          return Animal(id: animalData.id, imageURL: animalData.images.original.url, smallImageURL: animalData.images.downsampled.url, smallImage: nil, title: animalData.title)
+          return Animal(id: animalData.id, imageURL: animalData.images.original.url, smallImageURL: animalData.images.downsampled.url, title: animalData.title)
       }
       }
-//      .flatMap { (animal) -> AnyPublisher<Animal, Never> in
-//        fetchImage(url: URL(string: animal.smallImageURL)!, defaultValue: defaultImage) { image in
-//          return Animal(id: animal.id, imageURL: animal.imageURL, smallImageURL: animal.smallImageURL, smallImage: image, title: animal.title)
-//        }
-//      }
-//      .flatMap { animal in
-//        fetchImage(url: URL(string: animal.smallImageURL)!, defaultValue: defaultImage) { image in
-//          return Animal(id: animal.id, imageURL: animal.imageURL, smallImageURL: animal.smallImageURL, smallImage: image, title: animal.title)
-//        }
-//      }
       .sink(receiveValue: { animals in
         self.animals = animals
       })
@@ -57,36 +42,6 @@ struct ContentView: View {
 
   }
 
-//  func getAllData(url: URL, defaultValue: AnimalResponseData) -> AnyPublisher<[Animal], Never> {
-//    fetch(url, defaultValue: defaultValue)
-//      .flatMap { animalResponse in
-//        Publishers.Sequence(sequence: animalResponse.data.flatMap { animalData in
-//          Animal(id: animalData.id, imageURL: animalData.images.original.url, smallImageURL: animalData.images.downsampled.url, smallImage: nil, title: animalData.title)
-//        })
-//        .collect()
-//        .eraseToAnyPublisher()
-//
-//    }
-////      getIDs(for: type).flatMap { ids in
-////          Publishers.Sequence(sequence: ids.map { self.getData(with: $0) })
-////              .flatMap { $0 }
-////              .collect()
-////      }.eraseToAnyPublisher()
-//  }
-
-  func fetch(url: URL, completion: @escaping (AnimalResponseData) -> Void) {
-      let decoder = JSONDecoder()
-         let bogus = AnimalData(id: "123", title: "DefaultData", images: ImageData(original: LinkData(url: ""), downsampled: LinkData(url: "")))
-
-      URLSession.shared.dataTaskPublisher(for: url)
-          .retry(1)
-          .map(\.data)
-          .decode(type: AnimalResponseData.self, decoder: decoder)
-          .replaceError(with: AnimalResponseData(data: [bogus]))
-          .receive(on: DispatchQueue.main)
-          .sink(receiveValue: completion)
-          .store(in: &requests)
-  }
   func fetch(_ url: URL, defaultValue: AnimalResponseData) -> AnyPublisher<AnimalResponseData, Never> {
       let decoder = JSONDecoder()
       return URLSession.shared.dataTaskPublisher(for: url)
@@ -96,38 +51,6 @@ struct ContentView: View {
           .replaceError(with: defaultValue)
           .receive(on: DispatchQueue.main)
           .eraseToAnyPublisher()
-  }
-
-//  func fetch<T: Decodable>(_ url: URL, defaultValue: T) -> AnyPublisher<T, Never> {
-//      let decoder = JSONDecoder()
-//      return URLSession.shared.dataTaskPublisher(for: url)
-//          .retry(1)
-//          .map(\.data)
-//          .decode(type: T.self, decoder: decoder)
-//          .replaceError(with: defaultValue)
-//          .receive(on: DispatchQueue.main)
-//          .eraseToAnyPublisher()
-//  }
-
-//  func fetchImage(url: URL, defaultValue: UIImage) -> AnyPublisher<UIImage, Never> {
-//    return URLSession.shared.dataTaskPublisher(for: url)
-//            .retry(1)
-//      .map { (UIImage(data: $0.data) ?? defaultValue) }
-//            .replaceError(with: defaultValue)
-//            .receive(on: DispatchQueue.main)
-//            .eraseToAnyPublisher()
-//  }
-
-  func fetchImage(url: URL, defaultValue: UIImage, completion: @escaping (UIImage) -> Void) {
-    URLSession.shared.dataTaskPublisher(for: url)
-            .retry(1)
-      .map { (UIImage(data: $0.data) ?? defaultValue) }
-            .replaceError(with: defaultValue)
-            .receive(on: DispatchQueue.main)
-      .sink { value in
-          completion(value)
-    }
-    .store(in: &requests)
   }
   
 }
