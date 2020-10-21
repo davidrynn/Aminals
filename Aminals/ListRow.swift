@@ -13,6 +13,7 @@ struct ListRow: View {
     @State var thumbnail = UIImage(systemName: "photo")!
     @State var loading = true
     let animal: Animal
+    let imageCache: NSCache<NSString, UIImage>
 
     var body: some View {
         HStack {
@@ -23,12 +24,18 @@ struct ListRow: View {
             Spacer()
             Text(animal.title)
         }.onAppear {
-            loading = true
-            DispatchQueue.global(qos: .background).async {
-                if let dataUrl = URL(string: animal.smallImageURL), let imageData = try? Data(contentsOf: dataUrl), let image = UIImage(data: imageData) {
-                    DispatchQueue.main.async {
-                        thumbnail = image
-                        loading = false
+            if let cacheImage = imageCache.object(forKey: animal.imageURL as NSString) {
+                loading = false
+                thumbnail = cacheImage
+            } else {
+                loading = true
+                DispatchQueue.global(qos: .background).async {
+                    if let dataUrl = URL(string: animal.smallImageURL), let imageData = try? Data(contentsOf: dataUrl), let image = UIImage(data: imageData) {
+                        imageCache.setObject(image, forKey: animal.smallImageURL as NSString)
+                        DispatchQueue.main.async {
+                            thumbnail = image
+                            loading = false
+                        }
                     }
                 }
             }
@@ -39,6 +46,6 @@ struct ListRow: View {
 struct ListRow_Previews: PreviewProvider {
     static var previews: some View {
         let animal = Animal(id: "123", imageURL: "nil", smallImageURL: "nil", title: "No Image")
-        ListRow(animal: animal)
+        ListRow(animal: animal, imageCache: NSCache<NSString, UIImage>())
     }
 }

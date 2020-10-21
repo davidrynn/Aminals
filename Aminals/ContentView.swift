@@ -11,13 +11,14 @@ import SwiftUI
 
 struct ContentView: View {
     let defaultImage = UIImage(systemName: "questionmark.square.fill")!
+    let imageCache = NSCache<NSString, UIImage>()
     @State private var requests = Set<AnyCancellable>()
     @State private var animals = [Animal]()
     var body: some View {
         NavigationView {
             List(animals) { animal in
                 NavigationLink(destination: AnimalDetailView(imageURL: URL(string: animal.imageURL)!, title: animal.title)) {
-                    ListRow(animal: animal)
+                    ListRow(animal: animal, imageCache: imageCache)
                 }
             }
         }
