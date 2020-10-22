@@ -9,55 +9,54 @@
 import Combine
 import SwiftUI
 
+enum AnimalType: Int {
+    case cats = 0, dogs = 1, random = 2
+}
+
 struct ContentView: View {
     let defaultImage = UIImage(systemName: "questionmark.square.fill")!
     let imageCache = NSCache<NSString, UIImage>()
-    @State private var requests = Set<AnyCancellable>()
-    @State private var animals = [Animal]()
+    @State private var selection = 0
+    @StateObject private var dataSource = DataSource()
     var body: some View {
         NavigationView {
-            List(animals) { animal in
-                NavigationLink(destination: AnimalDetailView(imageURL: URL(string: animal.imageURL)!, title: animal.title)) {
-                    ListRow(animal: animal, imageCache: imageCache)
+            VStack {
+            Picker(selection: $selection, label: Text("What animals would you like to see?")) {
+                Text("Cats").tag(0)
+                Text("Dogs").tag(1)
+                Text("Random").tag(2)
+            }
+            .onChange(of: selection) { _ in
+                guard let type = AnimalType(rawValue: selection) else { return }
+                self.dataSource.setCurrentType(type)
+                self.dataSource.loadMoreContentIfNeeded(currentItem: self.dataSource.items.first)
+                }
+                .pickerStyle(SegmentedPickerStyle())
+
+                ScrollView {
+                    LazyVStack() {
+                        ForEach(dataSource.items) { animal in
+                            NavigationLink(destination: AnimalDetailView(imageURL: URL(string: animal.images.original.url)!, title: animal.title)) {
+                                ListRow(animal: animal, imageCache: imageCache)
+                            }
+                            .onAppear {
+                                self.dataSource.loadMoreContentIfNeeded(currentItem: animal)
+                            }
+                        }
+                    }
                 }
             }
         }
         .navigationBarTitle("Animals")
         .onAppear {
-            let url = URL(string: String(Constants.baseURL))!
-            
-            let bogus = AnimalData(id: "123", title: "DefaultData", images: ImageData(original: LinkData(url: ""), downsampled: LinkData(url: "")))
-            let defaultData = AnimalResponseData(data: [bogus])
-            
-            self.fetch(url, defaultValue: defaultData)
-                .map { $0.data }
-                .map {  $0.flatMap { animalData in
-                    return Animal(id: animalData.id, imageURL: animalData.images.original.url, smallImageURL: animalData.images.downsampled.url, title: animalData.title)
-                }
-                }
-                .sink(receiveValue: { animals in
-                    self.animals = animals
-                })
-                .store(in: &self.requests)
+            dataSource.loadMoreContentIfNeeded(currentItem: dataSource.items.first)
         }
-        
-    }
-    
-    func fetch(_ url: URL, defaultValue: AnimalResponseData) -> AnyPublisher<AnimalResponseData, Never> {
-        let decoder = JSONDecoder()
-        return URLSession.shared.dataTaskPublisher(for: url)
-            .retry(1)
-            .map(\.data)
-            .decode(type: AnimalResponseData.self, decoder: decoder)
-            .replaceError(with: defaultValue)
-            .receive(on: DispatchQueue.main)
-            .eraseToAnyPublisher()
     }
     
 }
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
-}
+//struct ContentView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ContentView(dataSource: <#DataSource#>)
+//    }
+//}

@@ -9,5 +9,5 @@
 import Foundation
 
 struct AnimalResponseData: Decodable {
-  let data: [AnimalData]
+  let data: [Animal]
 }

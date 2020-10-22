@@ -7,18 +7,9 @@
 //
 
 import UIKit
-import Combine
 
-class Animal: ObservableObject, Identifiable {
+struct Animal: Decodable, Identifiable {
   let id: String
-  let imageURL: String
-  var smallImageURL: String
   let title: String
-
-  init(id: String, imageURL: String, smallImageURL: String, title: String) {
-    self.imageURL = imageURL
-    self.smallImageURL = smallImageURL
-    self.title = title
-    self.id = id
-  }
+  let images: ImageData
 }
