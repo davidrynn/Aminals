@@ -46,10 +46,11 @@ class DataSource: ObservableObject {
         shouldIncrement = true
         let thresholdIndex = items.index(items.endIndex, offsetBy: -5)
         print("current threshold = \(thresholdIndex)")
-        let currentIndex = items.firstIndex(where: { $0.id == item.id })
-        print("currentIndex = " + currentIndex.debugDescription)
-        if currentIndex == thresholdIndex {
-            loadMoreContent()
+        if let currentIndex = items.firstIndex(where: { $0.id == item.id }) {
+            print("currentIndex = \(currentIndex)")
+            if (Int(currentIndex) == Int(thresholdIndex)) {
+                loadMoreContent()
+            }
         }
     }
 
@@ -93,38 +94,38 @@ class DataSource: ObservableObject {
                     self.random = animals
                 }
             })
-//            .catch({ _ in Just(self.items) })
+            //            .catch({ _ in Just(self.items) })
             .store(in: &requests)
     }
 }
 
 /*
  private func loadImages() {
-     guard let type = AnimalType(rawValue: selection), let url = UrlBuilder.buildURL(animalType: type) else { return }
+ guard let type = AnimalType(rawValue: selection), let url = UrlBuilder.buildURL(animalType: type) else { return }
 
-     let bogus = Animal(id: "123", title: "DefaultData", images: ImageData(original: LinkData(url: ""), downsampled: LinkData(url: "")))
-     let defaultData = AnimalResponseData(data: [bogus])
+ let bogus = Animal(id: "123", title: "DefaultData", images: ImageData(original: LinkData(url: ""), downsampled: LinkData(url: "")))
+ let defaultData = AnimalResponseData(data: [bogus])
 
-     self.fetch(url, defaultValue: defaultData)
-         .map { $0.data }
-         .map {  $0.flatMap { animalData in
-             return Animal(id: animalData.id, imageURL: animalData.images.original.url, smallImageURL: animalData.images.downsampled.url, title: animalData.title)
-         }
-         }
-         .sink(receiveValue: { animals in
-             self.animals = animals
-         })
-         .store(in: &self.requests)
+ self.fetch(url, defaultValue: defaultData)
+ .map { $0.data }
+ .map {  $0.flatMap { animalData in
+ return Animal(id: animalData.id, imageURL: animalData.images.original.url, smallImageURL: animalData.images.downsampled.url, title: animalData.title)
+ }
+ }
+ .sink(receiveValue: { animals in
+ self.animals = animals
+ })
+ .store(in: &self.requests)
  }
 
  private func fetch(_ url: URL, defaultValue: AnimalResponseData) -> AnyPublisher<AnimalResponseData, Never> {
-     let decoder = JSONDecoder()
-     return URLSession.shared.dataTaskPublisher(for: url)
-         .retry(1)
-         .map(\.data)
-         .decode(type: AnimalResponseData.self, decoder: decoder)
-         .replaceError(with: defaultValue)
-         .receive(on: DispatchQueue.main)
-         .eraseToAnyPublisher()
+ let decoder = JSONDecoder()
+ return URLSession.shared.dataTaskPublisher(for: url)
+ .retry(1)
+ .map(\.data)
+ .decode(type: AnimalResponseData.self, decoder: decoder)
+ .replaceError(with: defaultValue)
+ .receive(on: DispatchQueue.main)
+ .eraseToAnyPublisher()
  }
  */

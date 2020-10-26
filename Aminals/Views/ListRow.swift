@@ -17,14 +17,16 @@ struct ListRow: View {
     private let imageHeight: CGFloat = 60.0
 //Animal(id: animalData.id, imageURL: animalData.images.original.url, smallImageURL: animalData.images.downsampled.url, title: animalData.title)
     var body: some View {
-        HStack {
-            ZStack {
+        HStack() {
+            ZStack() {
                 ActivityView(animate: $loading, style: .large).frame(width: imageHeight, height: imageHeight, alignment: .center)
                 Image(uiImage: thumbnail).resizable().frame(width: imageHeight, height: imageHeight)
             }
+            Text(animal.formattedTitle)
             Spacer()
-            Text(animal.title)
-        }.onAppear {
+        }
+        .padding(10)
+        .onAppear {
             loading = true
             if let cacheImage = imageCache.object(forKey: animal.images.downsampled.url as NSString) {
                 DispatchQueue.main.async {

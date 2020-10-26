@@ -18,18 +18,21 @@ struct ContentView: View {
     let imageCache = NSCache<NSString, UIImage>()
     @State private var selection = 0
     @StateObject private var dataSource = DataSource()
+    @State private var isFirstAppearance = true
     var body: some View {
         NavigationView {
             VStack {
-            Picker(selection: $selection, label: Text("What animals would you like to see?")) {
-                Text("Cats").tag(0)
-                Text("Dogs").tag(1)
-                Text("Random").tag(2)
-            }
-            .onChange(of: selection) { _ in
-                guard let type = AnimalType(rawValue: selection) else { return }
-                self.dataSource.setCurrentType(type)
-                self.dataSource.loadMoreContentIfNeeded(currentItem: self.dataSource.items.first)
+                Picker(selection: $selection, label: Text("What animals would you like to see?")) {
+                    Text("Cats").tag(0)
+                    Text("Dogs").tag(1)
+                    Text("Random").tag(2)
+                }
+                .onChange(of: selection) { _ in
+                    print(selection)
+                    guard let type = AnimalType(rawValue: selection) else { return }
+                    print(type)
+                    self.dataSource.setCurrentType(type)
+                    self.dataSource.loadMoreContentIfNeeded(currentItem: self.dataSource.items.first)
                 }
                 .pickerStyle(SegmentedPickerStyle())
 
@@ -40,17 +43,28 @@ struct ContentView: View {
                                 ListRow(animal: animal, imageCache: imageCache)
                             }
                             .onAppear {
-                                self.dataSource.loadMoreContentIfNeeded(currentItem: animal)
+                                    self.dataSource.loadMoreContentIfNeeded(currentItem: animal)
                             }
                         }
                     }
                 }
             }
+            .navigationBarTitle("Animals")
         }
-        .navigationBarTitle("Animals")
         .onAppear {
-            dataSource.loadMoreContentIfNeeded(currentItem: dataSource.items.first)
+            setNavigationBarAppearance()
         }
+    }
+    mutating func setDidAppear(){
+        isFirstAppearance = false
+    }
+
+    func setNavigationBarAppearance() {
+        let design = UIFontDescriptor.SystemDesign.rounded
+        let descriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .largeTitle)
+                                         .withDesign(design)!
+        let font = UIFont.init(descriptor: descriptor, size: 48)
+        UINavigationBar.appearance().largeTitleTextAttributes = [.font : font]
     }
     
 }
