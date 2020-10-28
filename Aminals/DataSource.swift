@@ -10,55 +10,45 @@ import Foundation
 import Combine
 
 class DataSource: ObservableObject {
-
+    
     @Published var cats = [Animal]()
     @Published var dogs = [Animal]()
     @Published var random = [Animal]()
     @Published var isLoadingPage = false
+    @Published private var tracker = PageTracker(currentType: .animals)
     var items: [Animal] {
         switch (tracker.currentType) {
         case .cats:
             return cats
         case .dogs:
             return dogs
-        case .random:
+        case .animals:
             return random
         }
     }
     private var requests = Set<AnyCancellable>()
-    private var tracker = PageTracker()
-    private var shouldIncrement = false
-
+    
     init() {
-        shouldIncrement = true
-        loadMoreContent()
+        setCurrentType(.animals)
+        fetchData()
     }
-
-    func setCurrentType(_ type: AnimalType) {
+    
+    private func setCurrentType(_ type: AnimalType) {
         tracker.currentType = type
     }
-
-    func loadMoreContentIfNeeded(currentItem item: Animal?) {
-        guard let item = item else {
-            loadMoreContent()
-            return
-        }
-        shouldIncrement = true
-        let thresholdIndex = items.index(items.endIndex, offsetBy: -5)
-        print("current threshold = \(thresholdIndex)")
-        if let currentIndex = items.firstIndex(where: { $0.id == item.id }) {
-            print("currentIndex = \(currentIndex)")
-            if (Int(currentIndex) == Int(thresholdIndex)) {
-                loadMoreContent()
-            }
+    
+    func loadMoreContentIfNeeded(currentItem item: Animal?, selection: AnimalType) {
+        setCurrentType(selection)
+        if item == nil || items.count == 0 {
+            fetchData()
         }
     }
-
-    private func loadMoreContent() {
+    
+    func fetchData() {
         guard !isLoadingPage, let url = UrlBuilder.buildURL(tracker: tracker) else {
             return
         }
-
+        print("URL is \(url)")
         isLoadingPage = true
         let bogus = Animal(id: "123", title: "DefaultData", images: ImageData(original: LinkData(url: ""), downsampled: LinkData(url: "")))
         let defaultData = AnimalResponseData(data: [bogus])
@@ -70,9 +60,7 @@ class DataSource: ObservableObject {
             .receive(on: DispatchQueue.main)
             .handleEvents(receiveOutput: { response in
                 self.isLoadingPage = false
-                if self.shouldIncrement {
-                    self.tracker.setCurrentIncrement()
-                }
+                self.tracker.incrementCurrentOffset()
             })
             .map({ response -> [Animal] in
                 switch(self.tracker.currentType) {
@@ -80,7 +68,7 @@ class DataSource: ObservableObject {
                     return self.cats + response.data
                 case .dogs:
                     return self.dogs + response.data
-                case .random:
+                case .animals:
                     return self.random + response.data
                 }
             })
@@ -90,7 +78,7 @@ class DataSource: ObservableObject {
                     self.cats = animals
                 case .dogs:
                     self.dogs = animals
-                case .random:
+                case .animals:
                     self.random = animals
                 }
             })
@@ -102,10 +90,10 @@ class DataSource: ObservableObject {
 /*
  private func loadImages() {
  guard let type = AnimalType(rawValue: selection), let url = UrlBuilder.buildURL(animalType: type) else { return }
-
+ 
  let bogus = Animal(id: "123", title: "DefaultData", images: ImageData(original: LinkData(url: ""), downsampled: LinkData(url: "")))
  let defaultData = AnimalResponseData(data: [bogus])
-
+ 
  self.fetch(url, defaultValue: defaultData)
  .map { $0.data }
  .map {  $0.flatMap { animalData in
@@ -117,7 +105,7 @@ class DataSource: ObservableObject {
  })
  .store(in: &self.requests)
  }
-
+ 
  private func fetch(_ url: URL, defaultValue: AnimalResponseData) -> AnyPublisher<AnimalResponseData, Never> {
  let decoder = JSONDecoder()
  return URLSession.shared.dataTaskPublisher(for: url)

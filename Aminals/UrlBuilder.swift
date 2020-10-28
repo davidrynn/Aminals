@@ -15,7 +15,7 @@ struct UrlBuilder {
             return URL(string: Constants.baseURL+Constants.giphyKey+Constants.search+"cats"+Constants.offset+"\(tracker.currentOffset)"+Constants.last)
         case .dogs:
             return URL(string: Constants.baseURL+Constants.giphyKey+Constants.search+"dogs"+Constants.offset+"\(tracker.currentOffset)"+Constants.last)
-        case .random:
+        case .animals:
             return URL(string: Constants.baseURL+Constants.giphyKey+Constants.search+"animals"+Constants.offset+"\(tracker.currentOffset)"+Constants.last)
         }
     }

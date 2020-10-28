@@ -9,10 +9,6 @@
 import Combine
 import SwiftUI
 
-enum AnimalType: Int {
-    case cats = 0, dogs = 1, random = 2
-}
-
 struct ContentView: View {
     let defaultImage = UIImage(systemName: "questionmark.square.fill")!
     let imageCache = NSCache<NSString, UIImage>()
@@ -23,16 +19,15 @@ struct ContentView: View {
         NavigationView {
             VStack {
                 Picker(selection: $selection, label: Text("What animals would you like to see?")) {
-                    Text("Cats").tag(0)
-                    Text("Dogs").tag(1)
-                    Text("Random").tag(2)
+                    Text("Animals").tag(0)
+                    Text("Cats").tag(1)
+                    Text("Dogs").tag(2)
                 }
                 .onChange(of: selection) { _ in
-                    print(selection)
+                    print("Selection: \(selection)")
                     guard let type = AnimalType(rawValue: selection) else { return }
                     print(type)
-                    self.dataSource.setCurrentType(type)
-                    self.dataSource.loadMoreContentIfNeeded(currentItem: self.dataSource.items.first)
+                    self.dataSource.loadMoreContentIfNeeded(currentItem: self.dataSource.items.first, selection: type)
                 }
                 .pickerStyle(SegmentedPickerStyle())
 
@@ -43,7 +38,12 @@ struct ContentView: View {
                                 ListRow(animal: animal, imageCache: imageCache)
                             }
                             .onAppear {
-                                    self.dataSource.loadMoreContentIfNeeded(currentItem: animal)
+                                let thresholdIndex = dataSource.items.index(dataSource.items.endIndex, offsetBy: -5)
+                                if let currentIndex = dataSource.items.firstIndex(where: { $0.id == animal.id }) {
+                                    if (Int(currentIndex) == Int(thresholdIndex)) {
+                                        self.dataSource.fetchData()
+                                    }
+                                }
                             }
                         }
                     }
