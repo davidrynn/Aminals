@@ -11,7 +11,11 @@ import Foundation
 struct PageTracker {
     var offsetCats = 0
     var offsetDogs = 0
-    var offsetRandom = 0
+    var offsetAnimals = 0
+
+    var catsId = ""
+    var dogsId = ""
+    var animalsId = ""
 
     var currentType: AnimalType
 
@@ -22,7 +26,18 @@ struct PageTracker {
         case .dogs:
             return offsetDogs
         case .animals:
-            return offsetRandom
+            return offsetAnimals
+        }
+    }
+
+    var currentId: String {
+        switch(currentType) {
+        case .cats:
+            return catsId
+        case .dogs:
+            return dogsId
+        case .animals:
+            return animalsId
         }
     }
 
@@ -33,7 +48,19 @@ struct PageTracker {
         case .dogs:
             offsetDogs += 25
         case .animals:
-            offsetRandom += 25
+            offsetAnimals += 25
         }
     }
+
+    mutating func setId(_ id: String) {
+        switch(currentType) {
+        case .cats:
+            catsId = id
+        case .dogs:
+            dogsId = id
+        case .animals:
+            animalsId = id
+        }
+    }
+    
 }

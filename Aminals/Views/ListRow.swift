@@ -15,7 +15,6 @@ struct ListRow: View {
     let animal: Animal
     let imageCache: NSCache<NSString, UIImage>
     private let imageHeight: CGFloat = 60.0
-//Animal(id: animalData.id, imageURL: animalData.images.original.url, smallImageURL: animalData.images.downsampled.url, title: animalData.title)
     var body: some View {
         HStack() {
             ZStack() {
