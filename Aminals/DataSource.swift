@@ -37,26 +37,13 @@ class DataSource: ObservableObject {
         tracker.currentType = type
     }
     
-    func typeDidChange(currentItemId id: String?, selection: AnimalType) {
-        guard let id = id else {
-            fetchData()
-            return
-        }
-        tracker.setId(id)
+    func typeDidChange(selection: AnimalType) {
         setCurrentType(selection)
         if items.count == 0 {
             fetchData()
         }
     }
 
-    func getCurrentId() -> String {
-        return tracker.currentId
-    }
-
-    func setId(_ id: String) {
-        tracker.setId(id)
-    }
-    
     func fetchData() {
         guard !isLoadingPage, let url = UrlBuilder.buildURL(tracker: tracker) else {
             return

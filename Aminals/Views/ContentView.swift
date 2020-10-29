@@ -14,7 +14,7 @@ struct ContentView: View {
     let imageCache = NSCache<NSString, UIImage>()
     @StateObject var dataSource: DataSource
     @State private var selection = 0
-    @State var currentAnimalId: String?
+
     var body: some View {
         NavigationView {
             ScrollViewReader {  scrollView in
@@ -26,9 +26,7 @@ struct ContentView: View {
                     }
                     .onChange(of: selection) { _ in
                         guard let type = AnimalType(rawValue: selection) else { return }
-                        self.dataSource.typeDidChange(currentItemId: currentAnimalId, selection: type)
-//                        print("Current index: " + String(self.dataSource.getCurrentIndex()))
-                        scrollView.scrollTo(15)
+                        self.dataSource.typeDidChange(selection: type)
                     }
                     .pickerStyle(SegmentedPickerStyle())
 
@@ -41,9 +39,7 @@ struct ContentView: View {
                                 .onAppear {
                                     if willfinishScrolling(current: animal) {
                                         dataSource.fetchData()
-                                        currentAnimalId = animal.id
                                     }
-
                                 }
                             }
                         }
