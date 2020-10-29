@@ -11,7 +11,7 @@ import Foundation
 struct PageTracker {
     var offsetCats = 0
     var offsetDogs = 0
-    var offsetRandom = 0
+    var offsetAnimals = 0
 
     var currentType: AnimalType
 
@@ -22,7 +22,7 @@ struct PageTracker {
         case .dogs:
             return offsetDogs
         case .animals:
-            return offsetRandom
+            return offsetAnimals
         }
     }
 
@@ -33,7 +33,8 @@ struct PageTracker {
         case .dogs:
             offsetDogs += 25
         case .animals:
-            offsetRandom += 25
+            offsetAnimals += 25
         }
     }
+    
 }

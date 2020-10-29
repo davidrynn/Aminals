@@ -12,9 +12,9 @@ import SwiftUI
 struct ContentView: View {
     let defaultImage = UIImage(systemName: "questionmark.square.fill")!
     let imageCache = NSCache<NSString, UIImage>()
+    @StateObject var dataSource: DataSource
     @State private var selection = 0
-    @StateObject private var dataSource = DataSource()
-    @State private var isFirstAppearance = true
+
     var body: some View {
         NavigationView {
             VStack {
@@ -24,10 +24,8 @@ struct ContentView: View {
                     Text("Dogs").tag(2)
                 }
                 .onChange(of: selection) { _ in
-                    print("Selection: \(selection)")
                     guard let type = AnimalType(rawValue: selection) else { return }
-                    print(type)
-                    self.dataSource.loadMoreContentIfNeeded(currentItem: self.dataSource.items.first, selection: type)
+                    self.dataSource.typeDidChange(selection: type)
                 }
                 .pickerStyle(SegmentedPickerStyle())
 
@@ -38,31 +36,35 @@ struct ContentView: View {
                                 ListRow(animal: animal, imageCache: imageCache)
                             }
                             .onAppear {
-                                let thresholdIndex = dataSource.items.index(dataSource.items.endIndex, offsetBy: -5)
-                                if let currentIndex = dataSource.items.firstIndex(where: { $0.id == animal.id }) {
-                                    if (Int(currentIndex) == Int(thresholdIndex)) {
-                                        self.dataSource.fetchData()
-                                    }
+                                if willfinishScrolling(current: animal) {
+                                    dataSource.fetchData()
                                 }
                             }
                         }
                     }
                 }
+                .navigationBarTitle("Animals")
             }
-            .navigationBarTitle("Animals")
         }
         .onAppear {
             setNavigationBarAppearance()
         }
     }
-    mutating func setDidAppear(){
-        isFirstAppearance = false
+
+    private func willfinishScrolling(current: Animal) -> Bool {
+        let thresholdIndex = dataSource.items.index(dataSource.items.endIndex, offsetBy: -5)
+        if let currentIndex = dataSource.items.firstIndex(where: { $0.id == current.id }) {
+            if (Int(currentIndex) == Int(thresholdIndex)) {
+                return true
+            }
+        }
+        return false
     }
 
-    func setNavigationBarAppearance() {
+    private func setNavigationBarAppearance() {
         let design = UIFontDescriptor.SystemDesign.rounded
         let descriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .largeTitle)
-                                         .withDesign(design)!
+            .withDesign(design)!
         let font = UIFont.init(descriptor: descriptor, size: 48)
         UINavigationBar.appearance().largeTitleTextAttributes = [.font : font]
     }

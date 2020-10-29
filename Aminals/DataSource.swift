@@ -37,18 +37,17 @@ class DataSource: ObservableObject {
         tracker.currentType = type
     }
     
-    func loadMoreContentIfNeeded(currentItem item: Animal?, selection: AnimalType) {
+    func typeDidChange(selection: AnimalType) {
         setCurrentType(selection)
-        if item == nil || items.count == 0 {
+        if items.count == 0 {
             fetchData()
         }
     }
-    
+
     func fetchData() {
         guard !isLoadingPage, let url = UrlBuilder.buildURL(tracker: tracker) else {
             return
         }
-        print("URL is \(url)")
         isLoadingPage = true
         let bogus = Animal(id: "123", title: "DefaultData", images: ImageData(original: LinkData(url: ""), downsampled: LinkData(url: "")))
         let defaultData = AnimalResponseData(data: [bogus])
