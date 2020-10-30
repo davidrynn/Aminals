@@ -16,6 +16,7 @@ struct AnimalDetailView: View {
   let isPreview: Bool
   @State private var requests = Set<AnyCancellable>()
   @State var image: UIImage = UIImage()
+    @State var imageData: Data = Data()
   @State var loading = true
   var body: some View {
     ZStack {
@@ -28,6 +29,13 @@ struct AnimalDetailView: View {
       }
       .padding(.horizontal, 50)
     }
+    .navigationBarItems(trailing:
+        Button(action: {
+            presentShareSheet()
+        }) {
+            Image(systemName: "square.and.arrow.up").imageScale(.large)
+        }
+    )
     .onAppear {
       if self.isPreview {
         self.image = self.defaultImage
@@ -36,6 +44,7 @@ struct AnimalDetailView: View {
       else {
         self.fetchImageData(url: self.imageURL)
           .sink { data in
+            self.imageData = data
             self.image = UIImage.gifImageWithData(data) ?? self.defaultImage
             self.loading = false
         }
@@ -55,6 +64,11 @@ struct AnimalDetailView: View {
     self.title = "Test Title For Preview"
     self.isPreview = true
   }
+
+    func presentShareSheet() {
+        let av = UIActivityViewController(activityItems: [imageData], applicationActivities: nil)
+        UIApplication.shared.windows.first?.rootViewController?.present(av, animated: true, completion: nil)
+    }
 
   func fetchImageData(url: URL) -> AnyPublisher<Data, Never> {
     return URLSession.shared.dataTaskPublisher(for: url)
