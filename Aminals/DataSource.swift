@@ -4,18 +4,22 @@
 //
 //  Created by David Rynn on 10/21/20.
 //  Copyright © 2020 David Rynn. All rights reserved.
-// https://www.donnywals.com/implementing-an-infinite-scrolling-list-with-swiftui-and-combine/
+// https://www.appcoda.com/swiftui-search-bar/
 
 import Foundation
 import Combine
+import SwiftUI
 
 class DataSource: ObservableObject {
     
     @Published var cats = [Animal]()
     @Published var dogs = [Animal]()
     @Published var random = [Animal]()
+    @Published var search = [Animal]()
     @Published var isLoadingPage = false
     @Published private var tracker = PageTracker(currentType: .animals)
+    var searchString = ""
+
     var items: [Animal] {
         switch (tracker.currentType) {
         case .cats:
@@ -24,6 +28,8 @@ class DataSource: ObservableObject {
             return dogs
         case .animals:
             return random
+        case .search:
+            return search
         }
     }
     private var requests = Set<AnyCancellable>()
@@ -39,13 +45,18 @@ class DataSource: ObservableObject {
     
     func typeDidChange(selection: AnimalType) {
         setCurrentType(selection)
+        if selection == .search { resetSearch()}
         if items.count == 0 {
             fetchData()
         }
     }
 
+    private func resetSearch() {
+        search = [Animal]()
+    }
+
     func fetchData() {
-        guard !isLoadingPage, let url = UrlBuilder.buildURL(tracker: tracker) else {
+        guard !isLoadingPage, let url = UrlBuilder.buildURL(tracker: tracker, searchString: searchString) else {
             return
         }
         isLoadingPage = true
@@ -69,6 +80,8 @@ class DataSource: ObservableObject {
                     return self.dogs + response.data
                 case .animals:
                     return self.random + response.data
+                case .search:
+                    return self.search + response.data
                 }
             })
             .sink(receiveValue: { animals in
@@ -79,6 +92,8 @@ class DataSource: ObservableObject {
                     self.dogs = animals
                 case .animals:
                     self.random = animals
+                case .search:
+                    self.search = animals
                 }
             })
             //            .catch({ _ in Just(self.items) })

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		22090792254BB0740030CA5E /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22090791254BB0740030CA5E /* SearchBar.swift */; };
 		2218CBD4250D50B900F4E7CE /* AnimalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2218CBD3250D50B900F4E7CE /* AnimalDetailView.swift */; };
 		2218CBDC250D6C5800F4E7CE /* iOSDevCenters+GIF.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2218CBDB250D6C5800F4E7CE /* iOSDevCenters+GIF.swift */; };
 		221B1B222507FC2000FA6975 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221B1B212507FC2000FA6975 /* AppDelegate.swift */; };
@@ -50,6 +51,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		22090791254BB0740030CA5E /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		2218CBD3250D50B900F4E7CE /* AnimalDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimalDetailView.swift; sourceTree = "<group>"; };
 		2218CBDB250D6C5800F4E7CE /* iOSDevCenters+GIF.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "iOSDevCenters+GIF.swift"; sourceTree = "<group>"; };
 		221B1B1E2507FC2000FA6975 /* Aminals.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Aminals.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -192,6 +194,7 @@
 				2218CBD3250D50B900F4E7CE /* AnimalDetailView.swift */,
 				2254312A250E45F40028BA41 /* AnimalImageView.swift */,
 				221B1B252507FC2000FA6975 /* ContentView.swift */,
+				22090791254BB0740030CA5E /* SearchBar.swift */,
 				22582987253E2B2C001538DE /* ListRow.swift */,
 			);
 			path = Views;
@@ -335,6 +338,7 @@
 				221B1B222507FC2000FA6975 /* AppDelegate.swift in Sources */,
 				2218CBDC250D6C5800F4E7CE /* iOSDevCenters+GIF.swift in Sources */,
 				221B1B242507FC2000FA6975 /* SceneDelegate.swift in Sources */,
+				22090792254BB0740030CA5E /* SearchBar.swift in Sources */,
 				22FDD3BF2540C5BC006C4ADF /* UrlBuilder.swift in Sources */,
 				2254312D250E4CB60028BA41 /* ActivityView.swift in Sources */,
 				221B1B262507FC2000FA6975 /* ContentView.swift in Sources */,

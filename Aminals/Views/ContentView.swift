@@ -14,6 +14,8 @@ struct ContentView: View {
     let imageCache = NSCache<NSString, UIImage>()
     @StateObject var dataSource: DataSource
     @State private var selection = 0
+    @State private var showSearchBar = false
+    @State var searchText = ""
 
     var body: some View {
         NavigationView {
@@ -22,12 +24,25 @@ struct ContentView: View {
                     Text("Animals").tag(0)
                     Text("Cats").tag(1)
                     Text("Dogs").tag(2)
+                    Text("Search").tag(3)
                 }
                 .onChange(of: selection) { _ in
                     guard let type = AnimalType(rawValue: selection) else { return }
+                    if selection == 3 {
+                        showSearchBar = true
+                        dataSource.searchString = searchText
+                        return
+                    }
+                    showSearchBar = false
                     self.dataSource.typeDidChange(selection: type)
                 }
                 .pickerStyle(SegmentedPickerStyle())
+                if (showSearchBar) {
+                    SearchBar(text: $searchText, didCommit: {
+                        self.dataSource.searchString = searchText
+                        self.dataSource.typeDidChange(selection: .search)
+                    })
+                }
 
                 ScrollView {
                     LazyVStack() {
