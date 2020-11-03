@@ -6,3 +6,7 @@ Currently loads from Giphy.  Will add gifs from Tenor and possibly Imgur.
 
 # Installing
 You will need to make a 'Constants.swift' file with api keys for Giphy
+
+`struct Constants {
+    static let giphyKey = "your key here"
+}`
