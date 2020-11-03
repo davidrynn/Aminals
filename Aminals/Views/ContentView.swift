@@ -14,7 +14,9 @@ struct ContentView: View {
     let imageCache = NSCache<NSString, UIImage>()
     @StateObject var dataSource: DataSource
     @State private var selection = 0
-
+    @State private var showSearchBar = false
+    @State var searchText = ""
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -22,13 +24,26 @@ struct ContentView: View {
                     Text("Animals").tag(0)
                     Text("Cats").tag(1)
                     Text("Dogs").tag(2)
+                    Text("Search").tag(3)
                 }
                 .onChange(of: selection) { _ in
                     guard let type = AnimalType(rawValue: selection) else { return }
+                    if selection == 3 {
+                        showSearchBar = true
+                        dataSource.searchString = searchText
+                        return
+                    }
+                    showSearchBar = false
                     self.dataSource.typeDidChange(selection: type)
                 }
                 .pickerStyle(SegmentedPickerStyle())
-
+                if (showSearchBar) {
+                    SearchBar(text: $searchText, didCommit: {
+                        self.dataSource.searchString = searchText
+                        self.dataSource.typeDidChange(selection: .search)
+                    })
+                }
+                
                 ScrollView {
                     LazyVStack() {
                         ForEach(dataSource.items) { animal in
@@ -50,8 +65,8 @@ struct ContentView: View {
             setNavigationBarAppearance()
         }
     }
-
-    private func willfinishScrolling(current: Animal) -> Bool {
+    
+    private func willfinishScrolling(current: GYAnimal) -> Bool {
         let thresholdIndex = dataSource.items.index(dataSource.items.endIndex, offsetBy: -5)
         if let currentIndex = dataSource.items.firstIndex(where: { $0.id == current.id }) {
             if (Int(currentIndex) == Int(thresholdIndex)) {
@@ -60,7 +75,7 @@ struct ContentView: View {
         }
         return false
     }
-
+    
     private func setNavigationBarAppearance() {
         let design = UIFontDescriptor.SystemDesign.rounded
         let descriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .largeTitle)
@@ -71,8 +86,9 @@ struct ContentView: View {
     
 }
 
-//struct ContentView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ContentView(dataSource: <#DataSource#>)
-//    }
-//}
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        let dataSource = DataSource()
+        ContentView(dataSource: dataSource )
+    }
+}

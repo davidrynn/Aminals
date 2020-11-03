@@ -9,7 +9,7 @@
 import Foundation
 
 struct UrlBuilder {
-    static func buildURL(tracker: PageTracker)-> URL? {
+    static func buildURL(tracker: PageTracker, searchString: String)-> URL? {
         switch(tracker.currentType) {
         case .cats:
             return URL(string: Constants.baseURL+Constants.giphyKey+Constants.search+"cats"+Constants.offset+"\(tracker.currentOffset)"+Constants.last)
@@ -17,6 +17,9 @@ struct UrlBuilder {
             return URL(string: Constants.baseURL+Constants.giphyKey+Constants.search+"dogs"+Constants.offset+"\(tracker.currentOffset)"+Constants.last)
         case .animals:
             return URL(string: Constants.baseURL+Constants.giphyKey+Constants.search+"animals"+Constants.offset+"\(tracker.currentOffset)"+Constants.last)
+        case .search:
+            return URL(string: Constants.baseURL+Constants.giphyKey+Constants.search+searchString+Constants.offset+"\(tracker.currentOffset)"+Constants.last)
+
         }
     }
 }

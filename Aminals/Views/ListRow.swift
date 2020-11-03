@@ -12,7 +12,7 @@ import Combine
 struct ListRow: View {
     @State var thumbnail = UIImage()
     @State var loading = true
-    let animal: Animal
+    let animal: GYAnimal
     let imageCache: NSCache<NSString, UIImage>
     private let imageHeight: CGFloat = 60.0
     var body: some View {
@@ -51,9 +51,11 @@ struct ListRow: View {
     }
 }
 
-//struct ListRow_Previews: PreviewProvider {
-//    static var previews: some View {
-//        let animal = Animal(id: "123", imageURL: "nil", smallImageURL: "nil", title: "No Image")
-//        ListRow(animal: animal, imageCache: NSCache<NSString, UIImage>())
-//    }
-//}
+struct ListRow_Previews: PreviewProvider {
+    static var previews: some View {
+        let linkData = GYLinkData(url: "")
+        let imageData = GYImageData(original: linkData, downsampled: linkData)
+        let animal = GYAnimal(id: "123", title: "No image", images: imageData)
+        ListRow(animal: animal, imageCache: NSCache<NSString, UIImage>())
+    }
+}

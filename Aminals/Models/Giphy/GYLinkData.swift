@@ -1,5 +1,5 @@
 //
-//  AnimalResponseData.swift
+//  GYLinkData.swift
 //  Aminals
 //
 //  Created by David Rynn on 9/8/20.
@@ -8,6 +8,6 @@
 
 import Foundation
 
-struct AnimalResponseData: Decodable {
-  let data: [Animal]
+struct GYLinkData: Decodable {
+    let url: String
 }

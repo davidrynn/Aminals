@@ -7,5 +7,5 @@
 //
 
 enum AnimalType: Int {
-    case animals = 0, cats = 1, dogs = 2
+    case animals = 0, cats = 1, dogs = 2, search = 3
 }
