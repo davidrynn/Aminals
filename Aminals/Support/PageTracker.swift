@@ -13,9 +13,9 @@ struct PageTracker {
     var offsetDogs = 0
     var offsetAnimals = 0
     var offsetSearch = 0
-
+    
     var currentType: AnimalType
-
+    
     var currentOffset: Int {
         switch(currentType) {
         case .cats:
@@ -28,7 +28,7 @@ struct PageTracker {
             return offsetSearch
         }
     }
-
+    
     mutating func incrementCurrentOffset() {
         switch(currentType) {
         case .cats:

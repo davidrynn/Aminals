@@ -1,5 +1,5 @@
 //
-//  Animal.swift
+//  GYAnimal.swift
 //  Aminals
 //
 //  Created by David Rynn on 9/8/20.
@@ -8,10 +8,10 @@
 
 import UIKit
 
-struct Animal: Decodable, Identifiable {
+struct GYAnimal: Decodable, Identifiable {
     let id: String
     let title: String
-    let images: ImageData
+    let images: GYImageData
 
     var formattedTitle: String {
         let text = title.lowercased()
@@ -32,9 +32,9 @@ struct Animal: Decodable, Identifiable {
 extension String {
     func capitalizingFirstLetter() -> String {
         return prefix(1).capitalized + dropFirst()
-     }
+    }
 
     mutating func capitalizeFirstLetter() {
         self = self.capitalizingFirstLetter()
     }
- }
+}

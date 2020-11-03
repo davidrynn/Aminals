@@ -16,7 +16,7 @@ struct ContentView: View {
     @State private var selection = 0
     @State private var showSearchBar = false
     @State var searchText = ""
-
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -43,7 +43,7 @@ struct ContentView: View {
                         self.dataSource.typeDidChange(selection: .search)
                     })
                 }
-
+                
                 ScrollView {
                     LazyVStack() {
                         ForEach(dataSource.items) { animal in
@@ -65,8 +65,8 @@ struct ContentView: View {
             setNavigationBarAppearance()
         }
     }
-
-    private func willfinishScrolling(current: Animal) -> Bool {
+    
+    private func willfinishScrolling(current: GYAnimal) -> Bool {
         let thresholdIndex = dataSource.items.index(dataSource.items.endIndex, offsetBy: -5)
         if let currentIndex = dataSource.items.firstIndex(where: { $0.id == current.id }) {
             if (Int(currentIndex) == Int(thresholdIndex)) {
@@ -75,7 +75,7 @@ struct ContentView: View {
         }
         return false
     }
-
+    
     private func setNavigationBarAppearance() {
         let design = UIFontDescriptor.SystemDesign.rounded
         let descriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .largeTitle)
@@ -86,8 +86,9 @@ struct ContentView: View {
     
 }
 
-//struct ContentView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ContentView(dataSource: <#DataSource#>)
-//    }
-//}
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        let dataSource = DataSource()
+        ContentView(dataSource: dataSource )
+    }
+}
