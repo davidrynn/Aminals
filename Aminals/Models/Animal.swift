@@ -9,10 +9,13 @@
 import Foundation
 
 struct Animal: Identifiable {
+    
     let id: String
     let title: String
     let gifURL: String
     let imageURL: String
+    let source: LinkSource
+    let sourceURL: String
 
     var formattedTitle: String {
         let text = title.lowercased()
@@ -33,6 +36,8 @@ struct Animal: Identifiable {
         self.title = data.title
         self.gifURL = data.images.original.url
         self.imageURL = data.images.downsampled.url
+        self.source = .giphy
+        self.sourceURL = data.sourceUrl
     }
 
     init(_ data: TRResult) {
@@ -40,6 +45,8 @@ struct Animal: Identifiable {
         self.title = data.itemurl.getTenorTitleFromUrl()
         self.gifURL = data.media.first?.gif.url ?? ""
         self.imageURL = data.media.first?.gif.preview ?? ""
+        self.source = .tenor
+        self.sourceURL = data.itemurl
     }
     
 }

@@ -47,7 +47,7 @@ struct ContentView: View {
                 ScrollView {
                     LazyVStack() {
                         ForEach(dataSource.items) { animal in
-                            NavigationLink(destination: AnimalDetailView(imageURL: URL(string: animal.gifURL) ?? nil, title: animal.title)) {
+                            NavigationLink(destination: AnimalDetailView(imageURL: URL(string: animal.gifURL), title: animal.formattedTitle, source: animal.source, sourceUrl: URL(string: animal.sourceURL))) {
                                 ListRow(animal: animal, imageCache: imageCache)
                             }
                             .onAppear {
@@ -65,7 +65,10 @@ struct ContentView: View {
             setNavigationBarAppearance()
         }
     }
-    
+
+    /// Used for determining when scrolling is about to reach the end of the currently loaded contect - absent ScrollView delegates in SwiftUI
+    /// - Parameter current: animal at the index where the scroll is ending - to determing the index.
+    /// - Returns: A bool that indicates scrolling has reached the threshold for the end of content
     private func willfinishScrolling(current: Animal) -> Bool {
         let thresholdIndex = dataSource.items.index(dataSource.items.endIndex, offsetBy: -5)
         if let currentIndex = dataSource.items.firstIndex(where: { $0.id == current.id }) {

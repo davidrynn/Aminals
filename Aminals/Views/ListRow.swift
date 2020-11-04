@@ -14,13 +14,14 @@ struct ListRow: View {
     @State var loading = true
     let animal: Animal
     let imageCache: NSCache<NSString, UIImage>
-    private let imageHeight: CGFloat = 60.0
+    private let imageHeight: CGFloat = 80.0
     var body: some View {
         HStack() {
             ZStack() {
                 ActivityView(animate: $loading, style: .large).frame(width: imageHeight, height: imageHeight, alignment: .center)
                 Image(uiImage: thumbnail).resizable().frame(width: imageHeight, height: imageHeight)
             }
+            .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 20))
             Text(animal.formattedTitle)
             Spacer()
         }
@@ -55,7 +56,7 @@ struct ListRow_Previews: PreviewProvider {
     static var previews: some View {
         let linkData = GYLinkData(url: "")
         let imageData = GYImageData(original: linkData, downsampled: linkData)
-        let gyanimal = GYAnimal(id: "123", title: "No image", images: imageData)
+        let gyanimal = GYAnimal(id: "123", title: "No image", images: imageData, sourceUrl: "")
         let animal = Animal(gyanimal)
         ListRow(animal: animal, imageCache: NSCache<NSString, UIImage>())
     }

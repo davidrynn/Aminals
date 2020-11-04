@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// Struct keeps track of page values for animal items for loading next batch and also the current animal type selected
 struct PageTracker {
     var offsetCats = 0
     var offsetDogs = 0

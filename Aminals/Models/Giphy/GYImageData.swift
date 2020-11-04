@@ -9,10 +9,12 @@
 import Foundation
 
 struct GYImageData: Decodable {
+
+    let original: GYLinkData
+    let downsampled: GYLinkData
+    
     enum CodingKeys: String, CodingKey {
         case original
         case downsampled = "fixed_width_still"
     }
-    let original: GYLinkData
-    let downsampled: GYLinkData
 }

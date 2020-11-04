@@ -12,5 +12,11 @@ struct GYAnimal: Decodable {
     let id: String
     let title: String
     let images: GYImageData
+    let sourceUrl: String
+
+    enum CodingKeys: String, CodingKey {
+        case id, title, images
+        case sourceUrl = "url"
+    }
 
 }

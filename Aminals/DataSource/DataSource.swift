@@ -16,9 +16,6 @@ class DataSource: ObservableObject {
     @Published var dogs = [Animal]()
     @Published var random = [Animal]()
     @Published var search = [Animal]()
-    @Published var isLoadingPage = false
-    @Published private var tracker = PageTracker(currentType: .animals)
-    var searchString = ""
 
     var items: [Animal] {
         switch (tracker.currentType) {
@@ -32,8 +29,13 @@ class DataSource: ObservableObject {
             return search
         }
     }
+
+    var searchString = ""
+
+    private var tracker = PageTracker(currentType: .animals)
+    private var isLoadingPage = false
     private var requests = Set<AnyCancellable>()
-    
+
     init() {
         setCurrentType(.animals)
         fetchData()
@@ -49,6 +51,7 @@ class DataSource: ObservableObject {
         }
     }
 
+    /// Fetches gif data via url session/datapublisher based on current selection
     func fetchData() {
         guard !isLoadingPage else {
             return
@@ -80,7 +83,7 @@ class DataSource: ObservableObject {
             .store(in: &requests)
     }
 
-    func tenorDataTask() -> AnyPublisher<[TRResult], Never> {
+    private func tenorDataTask() -> AnyPublisher<[TRResult], Never> {
         let decoder = JSONDecoder()
         let defaultValue = TRResponseData(results: [])
         guard let url = UrlBuilder.buildTenorURL(tracker: tracker, searchString: searchString) else {
@@ -98,9 +101,8 @@ class DataSource: ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    /// Fetches gif data via url session/datapublisher based on current selection
-    func fetchGiphyData() -> AnyPublisher<[GYAnimal], Never> {
-        let bogus = GYAnimal(id: "123", title: "No image found", images: GYImageData(original: GYLinkData(url: ""), downsampled: GYLinkData(url: "")))
+    private func fetchGiphyData() -> AnyPublisher<[GYAnimal], Never> {
+        let bogus = GYAnimal(id: "123", title: "No image found", images: GYImageData(original: GYLinkData(url: ""), downsampled: GYLinkData(url: "")), sourceUrl: "")
         guard let url = UrlBuilder.buildGiphyURL(tracker: tracker, searchString: searchString) else {
             fatalError("invalid giphy url")
         }

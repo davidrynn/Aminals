@@ -14,22 +14,33 @@ struct AnimalDetailView: View {
     let title: String
     let defaultImage = UIImage(systemName: "questionmark.square.fill")!
     let isPreview: Bool
-
+    let sourceUrl: URL?
+    let source: LinkSource
+    var sourceString: String {
+        return source.rawValue.lowercased().capitalizingFirstLetter()
+    }
+    
     @State private var requests = Set<AnyCancellable>()
     @State var image: UIImage = UIImage()
     @State var imageData: Data = Data()
     @State var loading = true
+    @State var error = false
     
     var body: some View {
         ZStack {
-            ActivityView(animate: $loading, style: .large)
-            ZStack {
-                VStack {
+            if error {
+                Text("Error loading image")
+            } else {
+                ActivityView(animate: $loading, style: .large)
+                VStack(spacing: 60) {
                     Text(title)
-                    AnimalImageView(image: self.$image)
+                    AnimalImageView(image: self.$image).fixedSize()
+                    if let url = sourceUrl {
+                        Link(sourceString, destination: url)
+                    }
                 }
+                .padding(.horizontal, 50)
             }
-            .padding(.horizontal, 50)
         }
         .navigationBarItems(trailing:
                               Button(action: {
@@ -44,7 +55,9 @@ struct AnimalDetailView: View {
                 self.loading = false
             }
             else {
-                guard let url = self.imageURL else { return }
+                guard let url = self.imageURL else {
+                    self.error = true
+                    return }
                 self.fetchImageData(url: url)
                     .sink { data in
                         self.imageData = data
@@ -56,16 +69,21 @@ struct AnimalDetailView: View {
         }
     }
     
-    init(imageURL: URL?, title: String) {
+    init(imageURL: URL?, title: String, source: LinkSource, sourceUrl: URL?) {
         self.imageURL = imageURL
         self.title = title
         self.isPreview = false
+        self.source = source
+        self.sourceUrl = sourceUrl
     }
-    
+
+    /// For use by preview only
     init() {
         self.imageURL = URL(string: "https:www.google.com")!
         self.title = "Test Title For Preview"
         self.isPreview = true
+        self.source = .giphy
+        self.sourceUrl = URL(string: "")
     }
     
     func presentShareSheet() {

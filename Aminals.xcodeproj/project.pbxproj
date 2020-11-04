@@ -39,6 +39,7 @@
 		229BDEBC255206EF005E2BE5 /* Extension+String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229BDEBB255206EF005E2BE5 /* Extension+String.swift */; };
 		22CE69932540DD4B00B38348 /* DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22CE69922540DD4B00B38348 /* DataSource.swift */; };
 		22CE699E2540FBF200B38348 /* PageTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22CE699D2540FBF200B38348 /* PageTracker.swift */; };
+		22DB867A25523C4800DD2CB5 /* LinkSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22DB867925523C4800DD2CB5 /* LinkSource.swift */; };
 		22FDD3BF2540C5BC006C4ADF /* UrlBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22FDD3BE2540C5BC006C4ADF /* UrlBuilder.swift */; };
 /* End PBXBuildFile section */
 
@@ -98,6 +99,7 @@
 		229BDEBB255206EF005E2BE5 /* Extension+String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extension+String.swift"; sourceTree = "<group>"; };
 		22CE69922540DD4B00B38348 /* DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSource.swift; sourceTree = "<group>"; };
 		22CE699D2540FBF200B38348 /* PageTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageTracker.swift; sourceTree = "<group>"; };
+		22DB867925523C4800DD2CB5 /* LinkSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkSource.swift; sourceTree = "<group>"; };
 		22FDD3BE2540C5BC006C4ADF /* UrlBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UrlBuilder.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -194,6 +196,7 @@
 				229BDEB62552063B005E2BE5 /* Animal.swift */,
 				228C30A12547680900185643 /* AnimalType.swift */,
 				229098AD2550B30F00677174 /* Giphy */,
+				22DB867925523C4800DD2CB5 /* LinkSource.swift */,
 				229BDE8E2551ECD8005E2BE5 /* Tenor */,
 			);
 			path = Models;
@@ -405,6 +408,7 @@
 				2254312D250E4CB60028BA41 /* ActivityView.swift in Sources */,
 				221B1B262507FC2000FA6975 /* ContentView.swift in Sources */,
 				229BDE9D2551EF35005E2BE5 /* TRResponseData.swift in Sources */,
+				22DB867A25523C4800DD2CB5 /* LinkSource.swift in Sources */,
 				221B1B5A25082CBE00FA6975 /* GYAnimal.swift in Sources */,
 				229585F725083E1C0032D9E1 /* GYLinkData.swift in Sources */,
 				229BDE982551EE05005E2BE5 /* TRGifData.swift in Sources */,
