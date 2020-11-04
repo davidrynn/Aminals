@@ -14,22 +14,32 @@ enum GifError: Error {
 
 struct UrlBuilder {
     static func buildURL(source: LinkSource, tracker: PageTracker, searchString: String) throws -> URL {
-        let base: String
-        let end: String
+        let searchWord = tracker.currentType == .search ? searchString : String(describing: tracker.currentType)
+        var components = URLComponents()
+        components.scheme = "https"
         switch source {
         case .giphy:
-            base = "https://api.giphy.com/v1/gifs/search?api_key=\(Constants.giphyKey)&q="
-            end = "&limit=25&offset=\(tracker.currentOffset)&rating=g&lang=en"
+            components.host = "api.giphy.com"
+            components.path = "/v1/gifs/search"
+            components.queryItems = [
+                URLQueryItem(name: "api_key", value: Constants.giphyKey),
+                URLQueryItem(name: "q", value: searchWord),
+                URLQueryItem(name: "limit", value: "25"),
+                URLQueryItem(name: "offset", value: "\(tracker.currentOffset)"),
+                URLQueryItem(name: "rating", value: "g"),
+                URLQueryItem(name: "lang", value: Locale.current.languageCode)
+            ]
         case .tenor:
-            base = "https://api.tenor.com/v1/search?q="
-            end = "&key=\(Constants.tenorKey)&limit=25&pos=\(tracker.currentOffset)"
+            components.host = "api.tenor.com"
+            components.path = "/v1/search"
+            components.queryItems = [
+                URLQueryItem(name: "key", value: Constants.tenorKey),
+                URLQueryItem(name: "q", value: searchWord),
+                URLQueryItem(name: "limit", value: "25"),
+                URLQueryItem(name: "pos", value: "\(tracker.currentOffset)"),
+            ]
         }
-        let type = tracker.currentType
-        if type == .search {
-            guard let searchUrl = URL(string: base+searchString+end) else { throw GifError.badUrl}
-            return searchUrl
-        }
-        guard let url =  URL(string: base+String(describing: type)+end) else {
+        guard let url =  components.url else {
             throw GifError.badUrl
         }
         return url
