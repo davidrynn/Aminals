@@ -56,8 +56,12 @@ class DataSource: ObservableObject {
         guard !isLoadingPage else {
             return
         }
-        let giphyDataTask = fetchGiphyData()
-        let tenorTask = tenorDataTask()
+        //TODO: Handle Error
+        let defaultGiphyData = GYAnimalResponseData(data: [])
+        let giphyDataTask = try! fetch(.giphy, defaultValue: defaultGiphyData)
+
+        let defaultTenorValue = TRResponseData(results: [])
+        let tenorTask = try! fetch(.tenor, defaultValue: defaultTenorValue)
         isLoadingPage = true
         let combined = Publishers.Zip(giphyDataTask, tenorTask)
         combined
@@ -66,56 +70,33 @@ class DataSource: ObservableObject {
                 self.tracker.incrementCurrentOffset()
             })
             .sink { gyAnimalData, gifData in
-                let giphyAnimals = gyAnimalData.map { Animal($0) }
-                let tenorAnimals = gifData.map { Animal($0) }
-                            switch(self.tracker.currentType) {
-                            case .cats:
-                                self.cats += giphyAnimals + tenorAnimals
-                            case .dogs:
-                                self.dogs += giphyAnimals + tenorAnimals
-                            case .animals:
-                                self.random += giphyAnimals + tenorAnimals
-                            case .search:
-                                self.search += giphyAnimals + tenorAnimals
-                            }
+                let giphyAnimals = gyAnimalData.data.map { Animal($0) }
+                let tenorAnimals = gifData.results.map { Animal($0) }
+                switch(self.tracker.currentType) {
+                case .cats:
+                    self.cats += giphyAnimals + tenorAnimals
+                case .dogs:
+                    self.dogs += giphyAnimals + tenorAnimals
+                case .animals:
+                    self.random += giphyAnimals + tenorAnimals
+                case .search:
+                    self.search += giphyAnimals + tenorAnimals
+                }
 
             }
             .store(in: &requests)
     }
 
-    private func tenorDataTask() -> AnyPublisher<[TRResult], Never> {
+    // https://www.hackingwithswift.com/plus/networking
+    private func fetch<T: Decodable>(_ source: LinkSource, defaultValue: T) throws -> AnyPublisher<T, Never> {
         let decoder = JSONDecoder()
-        let defaultValue = TRResponseData(results: [])
-        guard let url = UrlBuilder.buildTenorURL(tracker: tracker, searchString: searchString) else {
-            fatalError("invalid tenor url")
-        }
+        let url = try UrlBuilder.buildURL(source: source, tracker: tracker, searchString: searchString)
         return URLSession.shared.dataTaskPublisher(for: url)
             .retry(1)
             .map(\.data)
-            .decode(type: TRResponseData.self, decoder: decoder)
+            .decode(type: T.self, decoder: decoder)
             .replaceError(with: defaultValue)
             .receive(on: DispatchQueue.main)
-            .map({ response -> [TRResult] in
-                response.results
-            })
-            .eraseToAnyPublisher()
-    }
-
-    private func fetchGiphyData() -> AnyPublisher<[GYAnimal], Never> {
-        let bogus = GYAnimal(id: "123", title: "No image found", images: GYImageData(original: GYLinkData(url: ""), downsampled: GYLinkData(url: "")), sourceUrl: "")
-        guard let url = UrlBuilder.buildGiphyURL(tracker: tracker, searchString: searchString) else {
-            fatalError("invalid giphy url")
-        }
-        let defaultData = GYAnimalResponseData(data: [bogus])
-        return URLSession.shared.dataTaskPublisher(for: url)
-            .retry(1)
-            .map(\.data)
-            .decode(type: GYAnimalResponseData.self, decoder: JSONDecoder())
-            .replaceError(with: defaultData)
-            .receive(on: DispatchQueue.main)
-            .map({ response -> [GYAnimal] in
-                response.data
-            })
             .eraseToAnyPublisher()
     }
 

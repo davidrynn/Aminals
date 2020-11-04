@@ -8,29 +8,30 @@
 
 import Foundation
 
-struct UrlBuilder {
-    static func buildGiphyURL(tracker: PageTracker, searchString: String)-> URL? {
-        let giphyBase = "https://api.giphy.com/v1/gifs/search?api_key="
-        let search = "&q="
-        let limit = "&limit=25"
-        let offset = "&offset="
-        let last = "&rating=g&lang=en"
-        let type = tracker.currentType
-        if type == .search {
-            return URL(string: giphyBase+Constants.giphyKey+search+searchString+limit+offset+"\(tracker.currentOffset)"+last)
-        }
-        return URL(string: giphyBase+Constants.giphyKey+search+String(describing: type)+limit+offset+"\(tracker.currentOffset)"+last)
-    }
+enum GifError: Error {
+    case badUrl
+}
 
-    static func buildTenorURL(tracker: PageTracker, searchString: String)-> URL? {
-        let base = "https://api.tenor.com/v1/search?q="
-        let key = "&key="
-        let limit = "&limit=25"
-        let offset = "&pos="
+struct UrlBuilder {
+    static func buildURL(source: LinkSource, tracker: PageTracker, searchString: String) throws -> URL {
+        let base: String
+        let end: String
+        switch source {
+        case .giphy:
+            base = "https://api.giphy.com/v1/gifs/search?api_key=\(Constants.giphyKey)&q="
+            end = "&limit=25&offset=\(tracker.currentOffset)&rating=g&lang=en"
+        case .tenor:
+            base = "https://api.tenor.com/v1/search?q="
+            end = "&key=\(Constants.tenorKey)&limit=25&pos=\(tracker.currentOffset)"
+        }
         let type = tracker.currentType
         if type == .search {
-            return URL(string: base+searchString+key+Constants.tenorKey+limit+offset+"\(tracker.currentOffset)")
+            guard let searchUrl = URL(string: base+searchString+end) else { throw GifError.badUrl}
+            return searchUrl
         }
-        return URL(string: base+String(describing: type)+key+Constants.tenorKey+limit+offset+"\(tracker.currentOffset)")
+        guard let url =  URL(string: base+String(describing: type)+end) else {
+            throw GifError.badUrl
+        }
+        return url
     }
 }
