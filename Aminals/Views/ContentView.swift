@@ -27,7 +27,7 @@ struct ContentView: View {
                     Text("Search").tag(3)
                 }
                 .onChange(of: selection) { _ in
-                    guard let type = AnimalType(rawValue: selection) else { return }
+                    let type = AnimalType(value: selection)
                     if selection == 3 {
                         showSearchBar = true
                         dataSource.searchString = searchText
@@ -47,7 +47,7 @@ struct ContentView: View {
                 ScrollView {
                     LazyVStack() {
                         ForEach(dataSource.items) { animal in
-                            NavigationLink(destination: AnimalDetailView(imageURL: URL(string: animal.images.original.url)!, title: animal.title)) {
+                            NavigationLink(destination: AnimalDetailView(imageURL: URL(string: animal.gifURL) ?? nil, title: animal.title)) {
                                 ListRow(animal: animal, imageCache: imageCache)
                             }
                             .onAppear {
@@ -66,7 +66,7 @@ struct ContentView: View {
         }
     }
     
-    private func willfinishScrolling(current: GYAnimal) -> Bool {
+    private func willfinishScrolling(current: Animal) -> Bool {
         let thresholdIndex = dataSource.items.index(dataSource.items.endIndex, offsetBy: -5)
         if let currentIndex = dataSource.items.firstIndex(where: { $0.id == current.id }) {
             if (Int(currentIndex) == Int(thresholdIndex)) {

@@ -12,15 +12,15 @@ import SwiftUI
 
 class DataSource: ObservableObject {
     
-    @Published var cats = [GYAnimal]()
-    @Published var dogs = [GYAnimal]()
-    @Published var random = [GYAnimal]()
-    @Published var search = [GYAnimal]()
+    @Published var cats = [Animal]()
+    @Published var dogs = [Animal]()
+    @Published var random = [Animal]()
+    @Published var search = [Animal]()
     @Published var isLoadingPage = false
     @Published private var tracker = PageTracker(currentType: .animals)
     var searchString = ""
 
-    var items: [GYAnimal] {
+    var items: [Animal] {
         switch (tracker.currentType) {
         case .cats:
             return cats
@@ -49,53 +49,76 @@ class DataSource: ObservableObject {
         }
     }
 
-    /// Fetches gif data via url session/datapublisher based on current selection
     func fetchData() {
-        guard !isLoadingPage, let url = UrlBuilder.buildURL(tracker: tracker, searchString: searchString) else {
+        guard !isLoadingPage else {
             return
         }
+        let giphyDataTask = fetchGiphyData()
+        let tenorTask = tenorDataTask()
         isLoadingPage = true
-        let bogus = GYAnimal(id: "123", title: "DefaultData", images: GYImageData(original: GYLinkData(url: ""), downsampled: GYLinkData(url: "")))
+        let combined = Publishers.Zip(giphyDataTask, tenorTask)
+        combined
+            .handleEvents(receiveOutput: { response in
+                self.isLoadingPage = false
+                self.tracker.incrementCurrentOffset()
+            })
+            .sink { gyAnimalData, gifData in
+                let giphyAnimals = gyAnimalData.map { Animal($0) }
+                let tenorAnimals = gifData.map { Animal($0) }
+                            switch(self.tracker.currentType) {
+                            case .cats:
+                                self.cats += giphyAnimals + tenorAnimals
+                            case .dogs:
+                                self.dogs += giphyAnimals + tenorAnimals
+                            case .animals:
+                                self.random += giphyAnimals + tenorAnimals
+                            case .search:
+                                self.search += giphyAnimals + tenorAnimals
+                            }
+
+            }
+            .store(in: &requests)
+    }
+
+    func tenorDataTask() -> AnyPublisher<[TRResult], Never> {
+        let decoder = JSONDecoder()
+        let defaultValue = TRResponseData(results: [])
+        guard let url = UrlBuilder.buildTenorURL(tracker: tracker, searchString: searchString) else {
+            fatalError("invalid tenor url")
+        }
+        return URLSession.shared.dataTaskPublisher(for: url)
+            .retry(1)
+            .map(\.data)
+            .decode(type: TRResponseData.self, decoder: decoder)
+            .replaceError(with: defaultValue)
+            .receive(on: DispatchQueue.main)
+            .map({ response -> [TRResult] in
+                response.results
+            })
+            .eraseToAnyPublisher()
+    }
+
+    /// Fetches gif data via url session/datapublisher based on current selection
+    func fetchGiphyData() -> AnyPublisher<[GYAnimal], Never> {
+        let bogus = GYAnimal(id: "123", title: "No image found", images: GYImageData(original: GYLinkData(url: ""), downsampled: GYLinkData(url: "")))
+        guard let url = UrlBuilder.buildGiphyURL(tracker: tracker, searchString: searchString) else {
+            fatalError("invalid giphy url")
+        }
         let defaultData = GYAnimalResponseData(data: [bogus])
-        URLSession.shared.dataTaskPublisher(for: url)
+        return URLSession.shared.dataTaskPublisher(for: url)
             .retry(1)
             .map(\.data)
             .decode(type: GYAnimalResponseData.self, decoder: JSONDecoder())
             .replaceError(with: defaultData)
             .receive(on: DispatchQueue.main)
-            .handleEvents(receiveOutput: { response in
-                self.isLoadingPage = false
-                self.tracker.incrementCurrentOffset()
-            })
             .map({ response -> [GYAnimal] in
-                switch(self.tracker.currentType) {
-                case .cats:
-                    return self.cats + response.data
-                case .dogs:
-                    return self.dogs + response.data
-                case .animals:
-                    return self.random + response.data
-                case .search:
-                    return self.search + response.data
-                }
+                response.data
             })
-            .sink(receiveValue: { animals in
-                switch(self.tracker.currentType) {
-                case .cats:
-                    self.cats = animals
-                case .dogs:
-                    self.dogs = animals
-                case .animals:
-                    self.random = animals
-                case .search:
-                    self.search = animals
-                }
-            })
-            .store(in: &requests)
+            .eraseToAnyPublisher()
     }
 
     private func resetSearch() {
-        search = [GYAnimal]()
+        search = [Animal]()
     }
 
     private func setCurrentType(_ type: AnimalType) {

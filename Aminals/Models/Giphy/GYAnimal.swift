@@ -8,33 +8,9 @@
 
 import UIKit
 
-struct GYAnimal: Decodable, Identifiable {
+struct GYAnimal: Decodable {
     let id: String
     let title: String
     let images: GYImageData
 
-    var formattedTitle: String {
-        let text = title.lowercased()
-        var components = text.components(separatedBy: " ")
-        if components.last == "gif" {
-            components = components.dropLast()
-        }
-        if let first = components.first {
-            let firstLetter = first.prefix(1).capitalized
-            let newFirst = firstLetter + first.dropFirst()
-            components[0] = newFirst
-        }
-        return components.joined(separator: " ")
-    }
-
-}
-
-extension String {
-    func capitalizingFirstLetter() -> String {
-        return prefix(1).capitalized + dropFirst()
-    }
-
-    mutating func capitalizeFirstLetter() {
-        self = self.capitalizingFirstLetter()
-    }
 }

@@ -10,14 +10,16 @@ import SwiftUI
 import Combine
 
 struct AnimalDetailView: View {
-    let imageURL: URL
+    let imageURL: URL?
     let title: String
     let defaultImage = UIImage(systemName: "questionmark.square.fill")!
     let isPreview: Bool
+
     @State private var requests = Set<AnyCancellable>()
     @State var image: UIImage = UIImage()
     @State var imageData: Data = Data()
     @State var loading = true
+    
     var body: some View {
         ZStack {
             ActivityView(animate: $loading, style: .large)
@@ -42,7 +44,8 @@ struct AnimalDetailView: View {
                 self.loading = false
             }
             else {
-                self.fetchImageData(url: self.imageURL)
+                guard let url = self.imageURL else { return }
+                self.fetchImageData(url: url)
                     .sink { data in
                         self.imageData = data
                         self.image = UIImage.gifImageWithData(data) ?? self.defaultImage
@@ -53,7 +56,7 @@ struct AnimalDetailView: View {
         }
     }
     
-    init(imageURL: URL, title: String) {
+    init(imageURL: URL?, title: String) {
         self.imageURL = imageURL
         self.title = title
         self.isPreview = false

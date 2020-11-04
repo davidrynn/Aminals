@@ -14,7 +14,7 @@ class GYAnimalTest: XCTestCase {
 
     override func setUpWithError() throws {
         super.setUp()
-        let data = try getDataFromJSON("TestJson")
+        let data = try getDataFromJSON("TestGiphyJson")
         let decoder = JSONDecoder()
         sut = try decoder.decode(GYAnimalResponseData.self, from: data)
     }
